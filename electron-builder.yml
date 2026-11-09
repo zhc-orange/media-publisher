@@ -19,9 +19,6 @@ win:
     - target: nsis
       arch:
         - x64
-    - target: portable
-      arch:
-        - x64
 
 nsis:
   oneClick: false
@@ -35,7 +32,4 @@ nsis:
     - zh_CN
     - en_US
   language: "2052"
-  artifactName: "${productName}-${version}-安装版.${ext}"
-
-portable:
-  artifactName: "${productName}-${version}-便携版.${ext}"
+  artifactName: "media-publisher-${version}-setup.${ext}"

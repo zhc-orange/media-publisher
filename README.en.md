@@ -36,7 +36,14 @@ A Windows desktop assistant for **semi-automatic** multi-platform video publishi
 
 ## Quick start
 
-Download the installer or portable build from [Releases](https://github.com/zhc-orange/media-publisher/releases).
+Download `media-publisher-1.0.0-setup.exe` from [Releases](https://github.com/zhc-orange/media-publisher/releases).
+
+**Install on Windows:**
+
+1. Double-click the downloaded installer.
+2. If SmartScreen shows "Unknown publisher", click **More info → Run anyway**.
+3. Keep the default install folder and click **Next → Install**.
+4. Launch from the desktop shortcut.
 
 From source:
 
@@ -60,7 +67,7 @@ pnpm test            # unit tests (node:test)
 pnpm selftest        # end-to-end engine test against a local mock platform
 pnpm selftest:retry  # slow-page retry test
 pnpm selftest:parallel
-pnpm build           # build Windows installer + portable exe into dist/
+pnpm build           # build Windows installer into dist/
 ```
 
 ## Privacy

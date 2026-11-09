@@ -40,14 +40,21 @@
 
 ## 快速开始
 
-### 方式一：下载安装包
+### 方式一：下载安装包（推荐）
 
-从 [Releases](https://github.com/zhc-orange/media-publisher/releases) 下载：
+从 [Releases](https://github.com/zhc-orange/media-publisher/releases) 下载最新版：
 
-- `自媒体发布助手-1.0.0-安装版.exe`：安装版
-- `自媒体发布助手-1.0.0-便携版.exe`：免安装便携版
+- `media-publisher-1.0.0-setup.exe`
 
-> 安装包未做代码签名，Windows SmartScreen 可能提示"未知发布者"，选择"仍要运行"即可。
+**安装步骤（Windows）：**
+
+1. 双击下载好的 `media-publisher-1.0.0-setup.exe`。
+2. 如果 Windows 弹出"已保护你的电脑 / 未知发布者"：点「更多信息」→「仍要运行」。
+3. 选择安装目录（默认即可），点「下一步」→「安装」。
+4. 安装完成后勾选「运行」，或双击桌面上的「自媒体发布助手」快捷方式。
+5. 首次打开后，在左侧逐个平台点「打开」完成登录。
+
+> 安装包未做代码签名，SmartScreen 提示属于正常现象；程序只会在本机运行，不会上传你的账号信息。
 
 ### 方式二：从源码运行
 
@@ -80,7 +87,7 @@ pnpm test             # 单元测试（node:test）
 pnpm selftest         # 引擎端到端自测（Electron + 本地模拟平台）
 pnpm selftest:retry   # 慢页面重试自测
 pnpm selftest:parallel# 双平台并发自测
-pnpm build            # 构建 Windows 安装包 / 便携版（输出到 dist/）
+pnpm build            # 构建 Windows 安装包（输出到 dist/）
 ```
 
 单元测试覆盖：配置校验、字数与话题预算、登录判定、注入脚本、并发调度、异常路径（建标签页失败后 running 必须复位）等。
