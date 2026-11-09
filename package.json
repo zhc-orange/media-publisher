@@ -34,7 +34,7 @@
   "scripts": {
     "start": "electron .",
     "dev": "electron .",
-    "test": "node --test \"test/*.test.js\"",
+    "test": "node --test test",
     "selftest": "electron scripts/selftest.js",
     "selftest:retry": "electron scripts/selftest-retry.js",
     "selftest:parallel": "electron scripts/selftest-parallel.js",
