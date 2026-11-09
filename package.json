@@ -41,7 +41,7 @@
     "selftest:chrome": "electron scripts/selftest-chrome.js",
     "ui-shot": "electron . --capture-ui",
     "icon": "node scripts/make-icon.js",
-    "build": "electron-builder --win --x64",
+    "build": "electron-builder --win --x64 --publish never",
     "build:dir": "electron-builder --win --x64 --dir"
   },
   "devDependencies": {
