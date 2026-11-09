@@ -1,0 +1,81 @@
+{
+    "id":  "xiaohongshu",
+    "name":  "小红书",
+    "order":  4,
+    "entry":  "https://creator.xiaohongshu.com/publish/publish?source=official",
+    "note":  "需登录小红书创作服务平台",
+    "limits":  {
+                   "title":  20,
+                   "description":  1000,
+                   "tags":  10,
+                   "maxFileMB":  1024
+               },
+    "loginCheck":  {
+                       "rejectTexts":  [
+                                           "短信登录",
+                                           "扫码登录",
+                                           "账号登录"
+                                       ],
+                       "selectors":  [
+                                         "[class*=\"avatar\"]",
+                                         "[class*=\"user-info\"]",
+                                         "[class*=\"userInfo\"]"
+                                     ],
+                       "urlExcludes":  "/login",
+                       "timeoutMs":  600000
+                   },
+    "video":  {
+                  "openButton":  [
+                                     "text=上传视频",
+                                     "text=视频"
+                                 ],
+                  "input":  [
+                                "input[type=\"file\"]"
+                            ],
+                  "accept":  "video",
+                  "timeoutMs":  180000
+              },
+    "title":  {
+                  "selectors":  [
+                                    "input[placeholder*=\"标题\"]",
+                                    ".title-input input",
+                                    "[class*=\"title\"] input"
+                                ]
+              },
+    "content":  {
+                    "selectors":  [
+                                      "div[contenteditable=\"true\"]",
+                                      ".ql-editor",
+                                      "textarea[placeholder*=\"正文\"]"
+                                  ]
+                },
+    "tags":  {
+                 "mode":  "inline-hash",
+                 "prefix":  "#"
+             },
+    "cover":  {
+                  "optional":  true,
+                  "input":  [
+                                "input[type=\"file\"][accept*=\"image\"]"
+                            ]
+              },
+    "upload":  {
+                   "doneSelectors":  [
+                                         "[class*=\"video-preview\"]",
+                                         "[class*=\"video\"] video"
+                                     ],
+                   "pendingTexts":  [
+                                        "上传中",
+                                        "正在上传",
+                                        "处理中",
+                                        "转码中"
+                                    ],
+                   "timeoutMs":  1800000
+               },
+    "publishButton":  [
+                          "text=发布",
+                          "text=发布笔记"
+                      ],
+    "nameEn":  "Xiaohongshu",
+    "noteEn":  "Requires Xiaohongshu creator login"
+}

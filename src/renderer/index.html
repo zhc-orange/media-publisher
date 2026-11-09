@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; img-src 'self' data: app-media:; media-src 'self' app-media: blob:; script-src 'self'; style-src 'self' 'unsafe-inline';"
+    />
+    <title>自媒体发布助手</title>
+    <script src="theme-init.js"></script>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header id="topbar">
+      <div class="brand">
+        <span class="logo" aria-hidden="true">▶</span>
+        <div class="brand-text">
+          <span class="brand-title" data-i18n="brand.title">自媒体发布助手</span>
+          <span class="brand-sub" data-i18n="brand.sub">一次录入 · 多平台填写</span>
+        </div>
+      </div>
+
+      <nav id="tabs" class="tabs" aria-label="标签页"></nav>
+
+      <div class="topbar-actions">
+        <button id="btn-history" class="btn btn-ghost btn-sm" data-i18n="topbar.history">历史</button>
+        <button id="btn-settings" class="btn btn-ghost btn-sm" data-i18n="topbar.settings">设置</button>
+      </div>
+    </header>
+
+    <main id="app">
+      <aside class="sidebar">
+        <div class="sidebar-head">
+          <span class="sidebar-title" data-i18n="sidebar.title">发布平台</span>
+          <div class="sidebar-tools">
+            <button id="btn-select-all" class="link-btn" data-i18n="sidebar.selectAll">全选</button>
+            <button id="btn-select-none" class="link-btn" data-i18n="sidebar.clear">清空</button>
+          </div>
+        </div>
+
+        <div id="platform-list" class="platform-list"></div>
+
+        <div class="sidebar-foot">
+          <span class="foot-dot"></span>
+          <span data-i18n="sidebar.foot">半自动模式 · 只填写不发布</span>
+        </div>
+      </aside>
+
+      <section class="content">
+        <div class="content-inner">
+          <div class="card form-card">
+            <div class="card-head">
+              <h2 class="card-title" data-i18n="form.title">视频信息</h2>
+              <span class="muted-12" data-i18n="form.sub">录入一次，自动填写到所选平台</span>
+              <button id="btn-reset-form" class="link-btn card-reset" data-i18n="form.reset" data-i18n-title="form.resetTitle">清空表单</button>
+            </div>
+
+            <div class="field">
+              <div class="label-row">
+                <label class="label"><span data-i18n="form.video">视频文件</span> <span class="req">*</span></label>
+                <span id="video-limits" class="field-hint"></span>
+              </div>
+              <div id="video-drop" class="dropzone">
+                <div class="picker">
+                  <button id="btn-pick-video" class="btn btn-ghost" data-i18n="form.pick">选择视频</button>
+                  <span id="video-info" class="picked muted" data-i18n="form.noVideo">尚未选择，也可以把视频拖到这里</span>
+                  <button id="btn-clear-video" class="link-btn hidden" data-i18n="form.remove">移除</button>
+                </div>
+                <div id="video-preview-wrap" class="media-preview hidden">
+                  <video id="video-preview" controls muted preload="metadata"></video>
+                </div>
+              </div>
+            </div>
+
+            <div class="field">
+              <div class="label-row">
+                <label class="label" for="input-title"><span data-i18n="form.titleLabel">标题</span> <span class="req">*</span></label>
+                <span class="field-meta"><span id="title-count">0 字</span><span id="title-limit-hint"></span></span>
+              </div>
+              <input id="input-title" class="input" type="text" data-i18n-placeholder="form.titlePlaceholder" placeholder="给视频起个标题" maxlength="200" />
+            </div>
+
+            <div class="field">
+              <div class="label-row">
+                <label class="label" for="input-desc" data-i18n="form.desc">简介 / 正文</label>
+                <span class="field-meta"><span id="desc-count">0 字</span></span>
+              </div>
+              <textarea id="input-desc" class="input textarea" rows="6" data-i18n-placeholder="form.descPlaceholder" placeholder="视频简介，可换行"></textarea>
+            </div>
+
+            <div class="field">
+              <div class="label-row">
+                <label class="label" for="input-tags" data-i18n="form.tags">话题标签</label>
+                <span class="field-meta" data-i18n="form.tagsAdd">回车添加</span>
+              </div>
+              <div class="tag-input-wrap">
+                <div id="tag-chips" class="chips"></div>
+                <input id="input-tags" class="tag-input" type="text" data-i18n-placeholder="form.tagsPlaceholder" placeholder="例如：旅行" />
+              </div>
+              <div class="field-hint" data-i18n="form.tagsHint">小红书 / 抖音会写成 #话题；B站 / YouTube 填进标签框。</div>
+            </div>
+
+            <!-- 封面自动设置暂未支持（各平台封面 UI 差异太大），先隐藏入口 -->
+            <div class="field" style="display: none" data-cover-disabled="1">
+              <div class="label-row">
+                <label class="label" data-i18n="form.cover">封面图（可选）</label>
+              </div>
+              <div class="picker">
+                <button id="btn-pick-cover" class="btn btn-ghost" data-i18n="form.pickCover">选择封面</button>
+                <span id="cover-info" class="picked muted" data-i18n="form.noCover">未选择，平台将使用默认帧</span>
+                <button id="btn-clear-cover" class="link-btn hidden" data-i18n="form.remove">移除</button>
+              </div>
+              <img id="cover-preview" class="cover-preview hidden" data-i18n-alt="form.coverAlt" alt="封面预览" />
+            </div>
+          </div>
+
+          <div class="actionbar">
+            <button id="btn-start" class="btn btn-primary" data-i18n="action.start">开始填写</button>
+            <button id="btn-cancel" class="btn btn-ghost hidden" data-i18n="action.cancel">取消任务</button>
+            <span id="run-hint" class="muted-12"></span>
+            <div class="runopts">
+              <span class="muted-12" data-i18n="action.method">处理方式</span>
+              <div class="segmented segmented-sm" id="run-concurrency-seg" role="group" aria-label="处理方式">
+                <button class="seg" data-concurrency="1" data-i18n="action.serial">串行</button>
+                <button class="seg" data-concurrency="2" data-i18n="action.parallel2">2 路</button>
+                <button class="seg" data-concurrency="3" data-i18n="action.parallel3">3 路</button>
+                <button class="seg" data-concurrency="0" data-i18n="action.all">全部并发</button>
+              </div>
+            </div>
+          </div>
+
+          <section class="section">
+            <div class="section-head">
+              <h3 class="section-title" data-i18n="progress.title">执行进度</h3>
+            </div>
+            <div id="progress-list" class="progress-list">
+              <div class="empty" data-i18n="progress.empty">尚未开始</div>
+            </div>
+          </section>
+
+          <details id="log-panel" class="section log-panel">
+            <summary class="section-head summary">
+              <h3 class="section-title" data-i18n="log.title">运行日志</h3>
+              <span class="summary-tail">
+                <button id="btn-open-logdir" class="link-btn" data-i18n="log.openDir">打开目录</button>
+              </span>
+            </summary>
+            <div id="log-box" class="log-box"></div>
+          </details>
+
+          <p class="notice" data-i18n-html="notice.html">
+            半自动模式：程序只填写不发布。每个平台填好后，请切到对应标签页检查，然后<b>手动点击发布</b>。
+          </p>
+        </div>
+      </section>
+    </main>
+
+    <div id="toast" class="toast hidden"></div>
+
+    <dialog id="history-dialog" class="dialog">
+      <div class="dialog-head">
+        <h3 class="dialog-title" data-i18n="history.title">发布历史</h3>
+        <button class="btn btn-ghost btn-sm dialog-close" data-close="history-dialog" data-i18n="dialog.close">关闭</button>
+      </div>
+      <div class="dialog-body">
+        <div id="history-list" class="history-list"></div>
+      </div>
+      <div class="dialog-foot">
+        <button id="btn-clear-history" class="btn btn-danger btn-sm" data-i18n="history.clear">清空历史</button>
+      </div>
+    </dialog>
+
+    <dialog id="chrome-dialog" class="dialog">
+      <div class="dialog-head">
+        <h3 class="dialog-title" data-i18n="chrome.title">为什么单独打开一个 Chrome 窗口？</h3>
+        <button class="btn btn-ghost btn-sm dialog-close" data-close="chrome-dialog" data-i18n="dialog.close">关闭</button>
+      </div>
+      <div class="dialog-body">
+        <p class="dialog-text" data-i18n="chrome.p1">
+          Google 拒绝在程序内嵌的浏览器里登录（会提示“此浏览器或应用可能不安全”），所以 YouTube / TikTok 改用本机 Chrome 的独立窗口。
+        </p>
+        <ul class="dialog-list">
+          <li data-i18n="chrome.li1">首次打开时，在这个 Chrome 窗口里登录一次 Google / TikTok；</li>
+          <li data-i18n="chrome.li2">登录状态保存在本机 chrome-profile，以后启动程序不用重复登录；</li>
+          <li data-i18n="chrome.li3">关闭程序时这个 Chrome 窗口会一起关闭，不影响你日常使用的 Chrome。</li>
+        </ul>
+        <p class="dialog-text muted" data-i18n="chrome.p2">如果登录过期，在该窗口重新登录一次即可。</p>
+      </div>
+      <div class="dialog-foot">
+        <button id="btn-chrome-notice-ok" class="btn btn-primary btn-sm" data-i18n="chrome.ok">知道了，打开</button>
+      </div>
+    </dialog>
+
+    <dialog id="settings-dialog" class="dialog">
+      <div class="dialog-head">
+        <h3 class="dialog-title" data-i18n="settings.title">设置</h3>
+        <button class="btn btn-ghost btn-sm dialog-close" data-close="settings-dialog" data-i18n="dialog.close">关闭</button>
+      </div>
+      <div class="dialog-body">
+        <div class="settings-group">
+          <div class="settings-label" data-i18n="settings.language">语言</div>
+          <div class="segmented" id="language-seg" role="group" aria-label="Language">
+            <button class="seg" data-language="system" data-i18n="settings.langSystem">跟随系统</button>
+            <button class="seg" data-language="zh" data-i18n="settings.langZh">中文</button>
+            <button class="seg" data-language="en" data-i18n="settings.langEn">English</button>
+          </div>
+        </div>
+
+        <div class="settings-group">
+          <div class="settings-label" data-i18n="settings.appearance">外观</div>
+          <div class="segmented" id="theme-seg" role="group" aria-label="Appearance">
+            <button class="seg" data-theme-value="system" data-i18n="settings.system">跟随系统</button>
+            <button class="seg" data-theme-value="light" data-i18n="settings.light">浅色</button>
+            <button class="seg" data-theme-value="dark" data-i18n="settings.dark">深色</button>
+          </div>
+        </div>
+
+        <div class="settings-group">
+          <div class="settings-label" data-i18n="settings.network">网络</div>
+          <div class="segmented" id="network-seg" role="group" aria-label="Network">
+            <button class="seg" data-network="system" data-i18n="settings.networkSystem">跟随系统代理</button>
+            <button class="seg" data-network="direct" data-i18n="settings.networkDirect">直连</button>
+          </div>
+          <div class="muted-12" style="margin-top: 6px" data-i18n="settings.networkHint">
+            代理软件异常时（页面打不开）可切到「直连」；YouTube / TikTok 可能仍需要代理。切换后需重启程序生效。
+          </div>
+        </div>
+
+        <div class="settings-group">
+          <div class="settings-label" data-i18n="settings.chromeWhy">YouTube / TikTok 为什么要单独开 Chrome 窗口</div>
+          <div class="muted-12" data-i18n="settings.chromeWhyText">
+            Google 拒绝在程序内嵌浏览器里登录，这两个平台改用本机 Chrome 的独立窗口。登录一次即可，状态保存在本机 chrome-profile；关闭程序时该窗口会一起关闭，不影响你日常用的 Chrome。
+          </div>
+        </div>
+
+        <div class="settings-group">
+          <div class="settings-label" data-i18n="settings.concurrency">同时处理的平台数</div>
+          <div class="segmented" id="concurrency-seg" role="group" aria-label="Concurrency">
+            <button class="seg" data-concurrency="1">1</button>
+            <button class="seg" data-concurrency="2">2</button>
+            <button class="seg" data-concurrency="3">3</button>
+            <button class="seg" data-concurrency="0" data-i18n="action.all">全部</button>
+          </div>
+          <div class="muted-12" style="margin-top: 6px" data-i18n="settings.concurrencyHint">
+            开跑时会把选中的平台标签页一次全部创建好；同时上传会分流带宽，网络一般时建议 2 个。
+          </div>
+        </div>
+
+        <label class="switch-row">
+          <input id="opt-truncate" type="checkbox" />
+          <span data-i18n="settings.optTruncate">文案超过平台字数上限时自动截断（关闭则直接报错）</span>
+        </label>
+
+        <label class="switch-row">
+          <input id="opt-open-tabs" type="checkbox" />
+          <span data-i18n="settings.optOpenTabs">串行模式（1 个）执行时自动切换到对应平台标签页</span>
+        </label>
+
+        <label class="switch-row">
+          <input id="opt-restore-draft" type="checkbox" />
+          <span data-i18n="settings.optRestore">启动时恢复上次填写的表单（关闭则每次启动都是空白表单）</span>
+        </label>
+
+        <div class="settings-group">
+          <div class="settings-label" data-i18n="settings.dataDir">数据目录（登录态 / 日志 / 诊断）</div>
+          <div class="settings-path">
+            <code id="settings-dir">-</code>
+            <button id="btn-open-dir" class="btn btn-ghost btn-sm" data-i18n="settings.open">打开</button>
+          </div>
+        </div>
+
+        <div class="muted-12" id="settings-version"></div>
+      </div>
+    </dialog>
+
+    <script src="i18n.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>

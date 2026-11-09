@@ -1,0 +1,54 @@
+{
+  "name": "media-publisher",
+  "version": "1.0.0",
+  "description": "Windows desktop assistant for filling video publishing forms across multiple Chinese and international platforms. 多平台自媒体发布助手：一次录入，自动在创作中心上传视频并填写标题/简介/话题，停在发布前由人手动发布。",
+  "main": "src/main/main.js",
+  "productName": "自媒体发布助手",
+  "author": "zhc-orange",
+  "license": "MIT",
+  "private": false,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zhc-orange/media-publisher.git"
+  },
+  "homepage": "https://github.com/zhc-orange/media-publisher",
+  "bugs": {
+    "url": "https://github.com/zhc-orange/media-publisher/issues"
+  },
+  "keywords": [
+    "electron",
+    "automation",
+    "video",
+    "publishing",
+    "douyin",
+    "kuaishou",
+    "bilibili",
+    "xiaohongshu",
+    "wechat-channels",
+    "youtube",
+    "tiktok"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron .",
+    "test": "node --test \"test/*.test.js\"",
+    "selftest": "electron scripts/selftest.js",
+    "selftest:retry": "electron scripts/selftest-retry.js",
+    "selftest:parallel": "electron scripts/selftest-parallel.js",
+    "selftest:chrome": "electron scripts/selftest-chrome.js",
+    "ui-shot": "electron . --capture-ui",
+    "icon": "node scripts/make-icon.js",
+    "build": "electron-builder --win --x64",
+    "build:dir": "electron-builder --win --x64 --dir"
+  },
+  "devDependencies": {
+    "electron": "^33.4.11",
+    "electron-builder": "^26.18.0"
+  },
+  "dependencies": {
+    "ws": "^8.22.1"
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "id": "wechat",
+  "name": "微信视频号",
+  "nameEn": "WeChat Channels",
+  "order": 7,
+  "entry": "https://channels.weixin.qq.com/platform/post/create",
+  "engine": "electron",
+  "note": "需微信扫码登录；首次使用请点「打开」扫码",
+  "noteEn": "Scan the QR code with WeChat to sign in (first time only)",
+  "limits": { "title": 30, "description": 1000, "tags": 10, "maxFileMB": 4096 },
+  "loginCheck": {
+    "selectors": [],
+    "rejectTexts": ["扫码登录", "登录视频号助手", "微信扫码登录", "加载失败"],
+    "urlExcludes": "/login",
+    "timeoutMs": 900000
+  },
+  "video": {
+    "openButton": ["text=添加视频", "text=上传视频", "text=发表视频"],
+    "readyTexts": ["添加描述"],
+    "input": ["input[type=\"file\"]"],
+    "accept": "video",
+    "timeoutMs": 240000
+  },
+  "title": {
+    "selectors": [
+      "input[placeholder*=\"短标题\"]",
+      "input.weui-desktop-form__input[placeholder*=\"短标题\"]"
+    ]
+  },
+  "content": {
+    "selectors": [".input-editor", "div[contenteditable=\"true\"]"]
+  },
+  "tags": {
+    "mode": "inline-hash",
+    "prefix": "#"
+  },
+  "cover": {
+    "optional": true,
+    "input": ["input[type=\"file\"][accept*=\"image\"]"]
+  },
+  "upload": {
+    "doneSelectors": [".video-preview", "video"],
+    "pendingTexts": ["上传中", "正在上传", "处理中"],
+    "timeoutMs": 3600000,
+    "stallTimeoutMs": 300000
+  },
+  "publishButton": ["text=发表"]
+}

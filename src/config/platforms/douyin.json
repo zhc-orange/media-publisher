@@ -1,0 +1,91 @@
+{
+    "id":  "douyin",
+    "name":  "抖音",
+    "order":  1,
+    "entry":  "https://creator.douyin.com/creator-micro/content/upload",
+    "note":  "需登录创作者中心",
+    "limits":  {
+                   "title":  30,
+                   "description":  1000,
+                   "tags":  5,
+                   "maxFileMB":  4096
+               },
+    "loginCheck":  {
+                       "rejectTexts":  [
+                                           "扫码登录",
+                                           "手机号登录",
+                                           "账号登录"
+                                       ],
+                       "selectors":  [
+                                         ".avatar",
+                                         "[class*=\"avatar\"]",
+                                         "[class*=\"user-info\"]"
+                                     ],
+                       "urlExcludes":  "/login",
+                       "timeoutMs":  600000
+                   },
+    "video":  {
+                  "openButton":  [
+                                     "text=上传视频",
+                                     "text=点击上传",
+                                     "text=发布视频",
+                                     "text=作品发布",
+                                     "[class*=\"upload\"]"
+                                 ],
+                  "readyTexts":  [
+                                     "点击上传",
+                                     "上传视频"
+                                 ],
+                  "input":  [
+                                "input[type=\"file\"]"
+                            ],
+                  "accept":  "video",
+                  "timeoutMs":  180000
+              },
+    "title":  {
+                  "selectors":  [
+                                    "input[placeholder=\"填写作品标题，为作品获得更多流量\"]",
+                                    "input[placeholder*=\"作品标题\"]",
+                                    "input[placeholder*=\"标题\"]",
+                                    "[class*=\"title\"] input"
+                                ]
+              },
+    "content":  {
+                    "selectors":  [
+                                      "div[contenteditable=\"true\"]",
+                                      "[class*=\"editor\"] [contenteditable=\"true\"]",
+                                      "textarea[placeholder*=\"简介\"]"
+                                  ]
+                },
+    "tags":  {
+                 "mode":  "inline-hash",
+                 "prefix":  "#"
+             },
+    "cover":  {
+                  "optional":  true,
+                  "input":  [
+                                "input[type=\"file\"][accept*=\"image\"]"
+                            ],
+                  "openButton":  [
+                                     "text=选择封面",
+                                     "text=更换封面"
+                                 ]
+              },
+    "upload":  {
+                   "doneSelectors":  [
+
+                                     ],
+                   "pendingTexts":  [
+                                        "上传过程中",
+                                        "正在上传"
+                                    ],
+                   "timeoutMs":  1800000,
+                   "stallTimeoutMs":  180000
+               },
+    "publishButton":  [
+                          "text=发布",
+                          "span#popover-tip-container \u003e button"
+                      ],
+    "nameEn":  "Douyin",
+    "noteEn":  "Requires Douyin creator login"
+}

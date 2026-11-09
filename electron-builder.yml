@@ -1,0 +1,41 @@
+appId: io.github.zhc-orange.media-publisher
+productName: 自媒体发布助手
+copyright: Copyright © 2026 zhc-orange
+
+directories:
+  output: dist
+  buildResources: build
+
+files:
+  - src/**/*
+  - package.json
+  - "!**/*.map"
+
+asar: true
+
+win:
+  icon: build/icon.ico
+  target:
+    - target: nsis
+      arch:
+        - x64
+    - target: portable
+      arch:
+        - x64
+
+nsis:
+  oneClick: false
+  perMachine: false
+  allowElevation: true
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: 自媒体发布助手
+  installerLanguages:
+    - zh_CN
+    - en_US
+  language: "2052"
+  artifactName: "${productName}-${version}-安装版.${ext}"
+
+portable:
+  artifactName: "${productName}-${version}-便携版.${ext}"

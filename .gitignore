@@ -1,0 +1,17 @@
+node_modules/
+dist/
+.artifacts/
+build/*.png
+data/
+logs/
+diagnostics/
+selftest/
+chrome-profile/
+*.log
+*.exe
+*.blockmap
+*.tmp
+.env
+.env.*
+.DS_Store
+Thumbs.db

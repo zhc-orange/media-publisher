@@ -1,0 +1,79 @@
+{
+    "id":  "kuaishou",
+    "name":  "快手",
+    "order":  2,
+    "entry":  "https://cp.kuaishou.com/article/publish/video",
+    "note":  "需登录快手创作者服务平台",
+    "limits":  {
+                   "title":  30,
+                   "description":  1000,
+                   "tags":  5,
+                   "maxFileMB":  4096
+               },
+    "loginCheck":  {
+                       "rejectTexts":  [
+                                           "立即登录",
+                                           "扫码登录",
+                                           "账号登录"
+                                       ],
+                       "selectors":  [
+                                         "[class*=\"avatar\"]",
+                                         "[class*=\"user-info\"]",
+                                         "[class*=\"userInfo\"]"
+                                     ],
+                       "urlExcludes":  "/login",
+                       "timeoutMs":  600000
+                   },
+    "video":  {
+                  "openButton":  [
+                                     "text=上传视频",
+                                     "text=发布作品",
+                                     "text=点击上传"
+                                 ],
+                  "input":  [
+                                "input[type=\"file\"]"
+                            ],
+                  "accept":  "video",
+                  "timeoutMs":  180000
+              },
+    "title":  {
+                  "selectors":  [
+                                    "#work-description-edit",
+                                    "div[contenteditable=\"true\"][data-placeholder*=\"描述\"]",
+                                    "div[contenteditable=\"true\"]"
+                                ]
+              },
+    "content":  {
+                    "selectors":  []
+                },
+    "combineTitleDesc":  true,
+    "tags":  {
+                 "mode":  "inline-hash",
+                 "prefix":  "#"
+             },
+    "cover":  {
+                  "optional":  true,
+                  "input":  [
+                                "input[type=\"file\"][accept*=\"image\"]"
+                            ]
+              },
+    "upload":  {
+                   "doneSelectors":  [
+                                         "[class*=\"video-preview\"]",
+                                         "[class*=\"videoPreview\"]"
+                                     ],
+                   "pendingTexts":  [
+                                        "上传中",
+                                        "正在上传",
+                                        "处理中",
+                                        "转码中"
+                                    ],
+                   "timeoutMs":  1800000
+               },
+    "publishButton":  [
+                          "text=发布",
+                          "text=发布作品"
+                      ],
+    "nameEn":  "Kuaishou",
+    "noteEn":  "Requires Kuaishou creator login"
+}

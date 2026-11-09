@@ -1,0 +1,88 @@
+{
+    "id":  "bilibili",
+    "name":  "B站",
+    "order":  3,
+    "entry":  "https://member.bilibili.com/platform/upload/video/frame",
+    "note":  "需登录 B 站创作中心，发布前需选分区",
+    "limits":  {
+                   "title":  80,
+                   "description":  2000,
+                   "tags":  10,
+                   "maxFileMB":  8192
+               },
+    "loginCheck":  {
+                       "rejectTexts":  [
+                                           "扫码登录",
+                                           "短信登录",
+                                           "密码登录"
+                                       ],
+                       "selectors":  [
+                                         ".user-avatar",
+                                         "[class*=\"avatar\"]",
+                                         "[class*=\"user-name\"]"
+                                     ],
+                       "urlExcludes":  "/login",
+                       "timeoutMs":  600000
+                   },
+    "video":  {
+                  "openButton":  [
+                                     "text=上传视频",
+                                     "text=点击上传"
+                                 ],
+                  "input":  [
+                                "input[type=\"file\"]"
+                            ],
+                  "accept":  "video",
+                  "timeoutMs":  180000
+              },
+    "title":  {
+                  "selectors":  [
+                                    "input[placeholder*=\"标题\"]",
+                                    "[class*=\"title\"] input",
+                                    "input[placeholder*=\"稿件\"]"
+                                ]
+              },
+    "content":  {
+                    "selectors":  [
+                                      ".ql-editor",
+                                      "div[contenteditable=\"true\"]",
+                                      "textarea[placeholder*=\"简介\"]"
+                                  ]
+                },
+    "tags":  {
+                 "mode":  "enter-input",
+                 "selectors":  [
+                                   "input[placeholder*=\"标签\"]",
+                                   "input[placeholder*=\"回车\"]",
+                                   "[class*=\"tag\"] input"
+                               ],
+                 "confirm":  true
+             },
+    "cover":  {
+                  "optional":  true,
+                  "input":  [
+                                "input[type=\"file\"][accept*=\"image\"]"
+                            ]
+              },
+    "upload":  {
+                   "doneSelectors":  [
+                                         "[class*=\"video-preview\"]",
+                                         "[class*=\"duration\"]",
+                                         "[class*=\"success\"]"
+                                     ],
+                   "pendingTexts":  [
+                                        "上传中",
+                                        "正在上传",
+                                        "处理中",
+                                        "转码中",
+                                        "上传完成，等待转码"
+                                    ],
+                   "timeoutMs":  1800000
+               },
+    "publishButton":  [
+                          "text=立即投稿",
+                          "text=投稿"
+                      ],
+    "nameEn":  "Bilibili",
+    "noteEn":  "Requires Bilibili creator login; choose a category before publishing"
+}

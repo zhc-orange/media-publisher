@@ -1,0 +1,80 @@
+{
+    "id":  "tiktok",
+    "name":  "TikTok",
+    "order":  6,
+    "entry":  "https://www.tiktok.com/tiktokstudio/upload?from=upload",
+    "engine":  "chrome",
+    "note":  "独立 Chrome 窗口 · 登录一次长期有效",
+    "limits":  {
+                   "title":  2200,
+                   "description":  2200,
+                   "tags":  10,
+                   "maxFileMB":  4096
+               },
+    "loginCheck":  {
+                       "rejectTexts":  [
+                                           "Log in",
+                                           "登录"
+                                       ],
+                       "selectors":  [
+                                         "[data-e2e=\"profile-icon\"]",
+                                         "[data-e2e=\"avatar\"]",
+                                         "[class*=\"avatar\"]"
+                                     ],
+                       "urlExcludes":  "/login",
+                       "timeoutMs":  900000
+                   },
+    "video":  {
+                  "openButton":  [
+                                     "text=选择文件",
+                                     "text=Select file",
+                                     "text=上传"
+                                 ],
+                  "input":  [
+                                "input[type=\"file\"]"
+                            ],
+                  "accept":  "video",
+                  "timeoutMs":  240000
+              },
+    "title":  {
+                  "selectors":  [
+                                    "div[contenteditable=\"true\"]",
+                                    ".public-DraftEditor-content",
+                                    "[data-e2e=\"caption-input\"]"
+                                ]
+              },
+    "content":  {
+                    "selectors":  [
+
+                                  ]
+                },
+    "tags":  {
+                 "mode":  "inline-hash",
+                 "prefix":  "#"
+             },
+    "cover":  {
+                  "optional":  true,
+                  "input":  [
+                                "input[type=\"file\"][accept*=\"image\"]"
+                            ]
+              },
+    "upload":  {
+                   "doneSelectors":  [
+                                         "[class*=\"video-preview\"]",
+                                         "video"
+                                     ],
+                   "pendingTexts":  [
+                                        "上传中",
+                                        "正在上传",
+                                        "Uploading",
+                                        "Processing"
+                                    ],
+                   "timeoutMs":  3600000
+               },
+    "publishButton":  [
+                          "text=发布",
+                          "text=Post"
+                      ],
+    "nameEn":  "TikTok",
+    "noteEn":  "Separate Chrome window · sign in once"
+}

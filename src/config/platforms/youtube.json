@@ -1,0 +1,90 @@
+{
+    "id":  "youtube",
+    "name":  "YouTube",
+    "order":  5,
+    "entry":  "https://studio.youtube.com",
+    "uploadEntry":  "https://studio.youtube.com/channel/{channelId}/videos/upload?d=ud",
+    "engine":  "chrome",
+    "note":  "独立 Chrome 窗口 · 登录一次长期有效",
+    "limits":  {
+                   "title":  100,
+                   "description":  5000,
+                   "tags":  30,
+                   "maxFileMB":  256000
+               },
+    "loginCheck":  {
+                       "rejectTexts":  [
+                                           "Sign in",
+                                           "登录"
+                                       ],
+                       "selectors":  [
+                                         "#avatar-btn",
+                                         "ytcp-avatar",
+                                         "[id=\"avatar-btn\"]"
+                                     ],
+                       "urlExcludes":  "/signin",
+                       "timeoutMs":  900000
+                   },
+    "video":  {
+                  "openButton":  [
+
+                                 ],
+                  "input":  [
+                                "input[type=\"file\"]"
+                            ],
+                  "accept":  "video",
+                  "initialWaitMs":  20000,
+                  "timeoutMs":  240000
+              },
+    "title":  {
+                  "selectors":  [
+                                    "#textbox",
+                                    "div#textbox[contenteditable=\"true\"]",
+                                    "ytcp-social-suggestions-textbox #textbox"
+                                ]
+              },
+    "content":  {
+                    "selectors":  [
+                                      "#description-textarea #textbox",
+                                      "ytcp-textarea #textbox"
+                                  ]
+                },
+    "tags":  {
+                 "mode":  "comma-input",
+                 "openButton":  [
+                                    "text=显示更多",
+                                    "text=展开"
+                                ],
+                 "selectors":  [
+                                   "#tags-container input",
+                                   "input[aria-label*=\"标签\"]"
+                               ],
+                 "confirm":  false
+             },
+    "cover":  {
+                  "optional":  true,
+                  "input":  [
+                                "input[type=\"file\"][accept*=\"image\"]"
+                            ]
+              },
+    "upload":  {
+                   "doneSelectors":  [
+                                         "[class*=\"video-preview\"]",
+                                         "video"
+                                     ],
+                   "pendingTexts":  [
+                                        "上传中",
+                                        "正在上传",
+                                        "处理中",
+                                        "Uploading",
+                                        "Processing"
+                                    ],
+                   "timeoutMs":  3600000
+               },
+    "publishButton":  [
+                          "text=发布",
+                          "text=保存"
+                      ],
+    "nameEn":  "YouTube",
+    "noteEn":  "Separate Chrome window · sign in once"
+}

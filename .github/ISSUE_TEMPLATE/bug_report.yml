@@ -1,0 +1,83 @@
+name: Bug report
+description: 报告一个平台填写/上传失败或程序问题
+title: "[bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        请先确认你使用的是最新 Release，并已阅读 README 的「已知限制」。
+        **不要上传包含账号昵称、头像、Cookie、二维码的截图或诊断文件。**
+  - type: input
+    id: version
+    attributes:
+      label: 版本
+      description: 程序设置页里的版本号，或 Release 标签
+    validations:
+      required: true
+  - type: input
+    id: windows
+    attributes:
+      label: 系统
+      description: 例如 Windows 11 23H2 x64
+    validations:
+      required: true
+  - type: dropdown
+    id: platform
+    attributes:
+      label: 出问题的平台
+      options:
+        - 抖音
+        - 快手
+        - B站
+        - 小红书
+        - 微信视频号
+        - YouTube
+        - TikTok
+        - 程序本身 / 多个平台
+    validations:
+      required: true
+  - type: dropdown
+    id: step
+    attributes:
+      label: 卡在哪一步
+      options:
+        - 打开页面 / 登录
+        - 上传视频
+        - 填写标题
+        - 填写正文
+        - 填写话题
+        - 发布前检查
+        - 启动 / 界面 / 其他
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: 现象
+      description: 实际发生了什么，进度里显示什么
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: 复现步骤
+      placeholder: |
+        1. 选择视频 ...
+        2. 勾选 ...
+        3. 开始填写 ...
+    validations:
+      required: true
+  - type: textarea
+    id: diagnostics
+    attributes:
+      label: 诊断信息（脱敏）
+      description: 设置页「打开目录」里的 diagnostics JSON 片段，或日志里的报错行；请先删除账号信息
+      render: json
+  - type: checkboxes
+    id: confirm
+    attributes:
+      label: 确认
+      options:
+        - label: 我已删除截图/诊断中的账号昵称、头像、Cookie、二维码等个人信息
+          required: true

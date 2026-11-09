@@ -1,0 +1,32 @@
+name: build-windows
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Build installer and portable
+        run: pnpm build
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: media-publisher-windows
+          path: |
+            dist/*.exe
+            dist/*.blockmap
+          if-no-files-found: error
