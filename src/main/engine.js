@@ -422,12 +422,115 @@ async function waitUploadComplete(ctx) {
   throw new StepError('upload', `视频上传超时（${Math.round(cfg.timeoutMs / 60000)} 分钟未完成）`);
 }
 
+async function readChips(ctx, candidates) {
+  const res = await evalScript(ctx, selectors.tagChipsScript(candidates)).catch(() => null);
+  if (!res || !res.ok) return { ok: false, chips: [] };
+  return res;
+}
+
+async function chipExists(ctx, candidates, tag) {
+  const state = await readChips(ctx, candidates);
+  return (state.chips || []).some((c) => c.text === tag);
+}
+
+/**
+ * 在「输入框 + chip」型控件里加一个标签。
+ * 平台行为差异很大：有的 Enter 直接提交，有的 Enter 只是收起联想下拉，
+ * 所以这里做多级兜底，每一级都用「回读」判断是否真的写进去了。
+ */
+async function addOneChip(ctx, candidates, tag) {
+  await waitForTarget(ctx, candidates, 10000, '标签输入框');
+  await evalScript(ctx, selectors.focusHitScript());
+  await sleep(150);
+  await typeText(ctx, tag);
+  await sleep(250);
+
+  // 1) Enter
+  await ctx.cdp.pressEnter();
+  await sleep(500);
+  if (await chipExists(ctx, candidates, tag)) return 'enter';
+
+  // 2) 再按一次 Enter（第一次可能只是收起联想）
+  await ctx.cdp.pressEnter();
+  await sleep(500);
+  if (await chipExists(ctx, candidates, tag)) return 'enter2';
+
+  // 3) 点联想下拉里与标签同名/同前缀的第一条
+  for (const probe of [`text==${tag}`, `text=${tag}`]) {
+    const sug = await evalScript(ctx, selectors.findScript([probe], {})).catch(() => null);
+    if (sug && sug.found && sug.visible && sug.rect && sug.rect.width >= 2) {
+      await ctx.cdp.clickAt(sug.rect.x + sug.rect.width / 2, sug.rect.y + sug.rect.height / 2);
+      await sleep(600);
+      if (await chipExists(ctx, candidates, tag)) return 'suggestion';
+    }
+  }
+
+  // 4) 补一个空格再回车（部分实现要求分隔符）
+  await evalScript(ctx, selectors.focusHitScript());
+  await typeText(ctx, ' ');
+  await ctx.cdp.pressEnter();
+  await sleep(500);
+  if (await chipExists(ctx, candidates, tag)) return 'space-enter';
+
+  return '';
+}
+
+async function fillChipTags(ctx, candidates, list) {
+  const cfg = ctx.platform.tags;
+  let state = await readChips(ctx, candidates);
+  if (!state.ok) throw new StepError('tags', '找不到标签输入框（chip 模式）');
+
+  if (cfg.replace) {
+    const keep = new Set(list);
+    const extras = (state.chips || []).filter((c) => !keep.has(c.text)).sort((a, b) => b.x - a.x);
+    for (const chip of extras) {
+      const rm = await evalScript(ctx, selectors.removeChipScript(chip.text)).catch(() => null);
+      if (!rm || !rm.ok) {
+        ctx.log(`  未能移除默认标签「${chip.text}」（找不到删除按钮）`);
+        continue;
+      }
+      await ctx.cdp.clickAt(rm.point.x, rm.point.y);
+      await sleep(400);
+      ctx.log(`  移除平台默认标签：${chip.text}`);
+    }
+    state = await readChips(ctx, candidates);
+  }
+
+  const added = [];
+  const missing = [];
+  for (const tag of list) {
+    if (ctx.isCancelled()) throw new StepError('cancel', '任务已取消');
+    if ((state.chips || []).some((c) => c.text === tag)) {
+      ctx.log(`  标签已存在：${tag}`);
+      continue;
+    }
+    const how = await addOneChip(ctx, candidates, tag);
+    state = await readChips(ctx, candidates);
+    if ((state.chips || []).some((c) => c.text === tag)) {
+      added.push(tag);
+      ctx.log(`  已添加标签：${tag}${how && how !== 'enter' ? `（经 ${how}）` : ''}`);
+    } else {
+      missing.push(tag);
+      ctx.log(`  ✗ 标签没有写进去：${tag}`);
+    }
+  }
+
+  return {
+    mode: 'chip',
+    ok: missing.length === 0,
+    verified: true,
+    tags: (state.chips || []).map((c) => c.text),
+    added,
+    missing,
+  };
+}
+
 async function fillTags(ctx) {
   const { tags } = ctx.platform;
   const list = ctx.effective.tags || [];
   if (!list.length || tags.mode === 'none') {
     if (list.length) ctx.log('该平台不处理话题，已跳过');
-    return;
+    return { mode: 'none', ok: true, tags: [] };
   }
   if (tags.mode === 'inline-hash') {
     const contentCandidates = ctx.platform.content.selectors.length
@@ -439,7 +542,7 @@ async function fillTags(ctx) {
     await typeText(ctx, text);
     await sleep(600);
     ctx.log(`已在正文末尾追加话题：${text.trim()}`);
-    return;
+    return { mode: 'inline', ok: true, tags: list };
   }
   const candidates = tags.selectors.length ? tags.selectors : ctx.platform.content.selectors;
   if (tags.openButton && tags.openButton.length) {
@@ -447,6 +550,11 @@ async function fillTags(ctx) {
     await clickSequence(ctx, tags.openButton, '话题展开');
     await sleep(900);
   }
+
+  if (tags.mode === 'chip') {
+    return await fillChipTags(ctx, candidates, list);
+  }
+
   const hit = await waitForTarget(ctx, candidates, 20000, '话题输入框');
   ctx.log(`定位话题输入框：${hit.candidate}`);
   await evalScript(ctx, selectors.focusHitScript());
@@ -464,6 +572,8 @@ async function fillTags(ctx) {
     await sleep(300);
     ctx.log(`已填写话题：${list.join(', ')}`);
   }
+  // 这类平台没有可靠的回读方式，标记为未校验
+  return { mode: tags.mode, ok: true, verified: false, tags: list };
 }
 
 async function setCover(ctx) {
@@ -540,12 +650,14 @@ async function runPlatform(opts) {
       }
     }
 
+    let tagResult = null;
     if (prepared.tags.length && platform.tags.mode !== 'none') {
       ctx.setStatus('filling', '正在填写话题…');
       try {
-        await fillTags(ctx);
+        tagResult = await fillTags(ctx);
       } catch (tagErr) {
-        ctx.log(`话题填写未完成（不影响发布）：${tagErr.message}`);
+        ctx.log(`话题填写失败：${tagErr.message}`);
+        tagResult = { mode: platform.tags.mode, ok: false, verified: true, tags: [], missing: prepared.tags, error: tagErr.message };
       }
     }
 
@@ -558,8 +670,17 @@ async function runPlatform(opts) {
       }
     }
 
-    ctx.setStatus('filled', '信息已填好，请切到该平台确认并手动发布');
-    return { status: 'filled', warnings: prepared.warnings };
+    // 话题没写全就不算"填好"，如实上报，交给界面提示人工补
+    const tagsOk = !tagResult || tagResult.ok !== false;
+    ctx.setStatus(
+      'filled',
+      tagsOk ? '信息已填好，请切到该平台确认并手动发布' : '部分内容未写入（话题），请手动补后再发布'
+    );
+    return {
+      status: tagsOk ? 'filled' : 'partial',
+      warnings: prepared.warnings,
+      tags: tagResult,
+    };
   } catch (err) {
     if (err instanceof StepError) throw err;
     throw new StepError('unknown', err.message || String(err));

@@ -16,7 +16,7 @@ test('内置平台配置全部合法且 id 唯一', () => {
     assert.ok(p.title.selectors.length > 0);
     assert.ok(p.video.input.length > 0);
     assert.ok(p.limits.title > 0);
-    assert.ok(['inline-hash', 'comma-input', 'enter-input', 'none'].includes(p.tags.mode));
+    assert.ok(['inline-hash', 'comma-input', 'enter-input', 'chip', 'none'].includes(p.tags.mode));
   }
   for (const id of ['douyin', 'kuaishou', 'bilibili', 'xiaohongshu', 'youtube', 'tiktok']) {
     assert.ok(ids.includes(id), `缺少平台配置：${id}`);

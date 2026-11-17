@@ -513,6 +513,10 @@ button {
   background: var(--success);
 }
 
+.dot[data-status="partial"] {
+  background: var(--warn);
+}
+
 .dot[data-status="failed"] {
   background: var(--danger);
 }
@@ -527,6 +531,10 @@ button {
 
 .platform-state[data-status="filled"] {
   color: var(--success);
+}
+
+.platform-state[data-status="partial"] {
+  color: var(--warn);
 }
 
 .platform-state[data-status="failed"] {
@@ -1108,6 +1116,12 @@ button {
   color: var(--success);
   border-color: var(--success);
   background: var(--success-soft);
+}
+
+.badge[data-status="partial"] {
+  color: var(--warn);
+  border-color: var(--warn);
+  background: var(--warn-soft);
 }
 
 .badge[data-status="failed"] {

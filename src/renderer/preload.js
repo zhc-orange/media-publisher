@@ -50,6 +50,7 @@ contextBridge.exposeInMainWorld('api', {
   closeTab: (platformId) => invoke('tab:close', platformId),
   reloadTab: (platformId) => invoke('tab:reload', platformId),
   checkLogin: (platformId) => invoke('login:check', platformId),
+  logoutPlatform: (platformId) => invoke('login:logout', platformId),
   scanPage: (platformId) => invoke('page:scan', platformId),
   history: () => invoke('history:list'),
   clearHistory: () => invoke('history:clear'),

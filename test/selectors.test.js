@@ -33,6 +33,8 @@ test('各操作脚本语法合法', () => {
     selectors.execInsertTextScript('abc'),
     selectors.uploadStateScript(['上传中'], ['.done']),
     selectors.loginStateScript(['.avatar'], '/login'),
+    selectors.tagChipsScript(['input[placeholder*="创建标签"]']),
+    selectors.removeChipScript('室内攀岩'),
   ];
   for (const script of fns) {
     assert.ok(script.startsWith('('));

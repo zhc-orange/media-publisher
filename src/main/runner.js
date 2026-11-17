@@ -231,10 +231,16 @@ class Runner extends EventEmitter {
         isCancelled: () => this.cancelled,
       });
       logger.info(platform.id, `完成，用时 ${Math.round((Date.now() - startedAt) / 1000)} 秒`);
+      const partial = res && res.status === 'partial';
+      const missingTags = res && res.tags && res.tags.missing ? res.tags.missing : [];
       return {
-        status: 'filled',
-        message: '信息已填好，请确认后手动发布',
+        status: partial ? 'partial' : 'filled',
+        message: partial
+          ? `部分内容未写入${missingTags.length ? `（话题：${missingTags.join('、')}）` : ''}，请手动补后再发布`
+          : '信息已填好，请确认后手动发布',
         warnings: res.warnings,
+        tags: res && res.tags ? res.tags : null,
+        missingTags,
         elapsedMs: Date.now() - startedAt,
       };
     } catch (err) {

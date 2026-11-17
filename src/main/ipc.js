@@ -14,6 +14,7 @@ const diagnostics = require('./diagnostics');
 const { saveSettings } = require('./settings');
 const { TAB_BAR_HEIGHT } = require('./constants');
 const mediaStore = require('./media-store');
+const { logoutPlatform } = require('./logout');
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -242,6 +243,18 @@ function registerIpc(ctx) {
         ? `页面提示需要登录（${reject}），请在该标签页完成登录后重新检测`
         : '未检测到登录状态，请在该标签页完成登录后重新检测',
     };
+  });
+
+  handle('login:logout', async (platformId) => {
+    const platform = getPlatform(platformId);
+    if (runner.isRunning) throw new Error('任务执行中，暂时不能退出登录');
+    const entry = await tabs.ensure(platform);
+    const res = await logoutPlatform({ platform, entry });
+    if (!res.ok) {
+      throw new Error(`退出失败：${res.error || '未知原因'}`);
+    }
+    tabs.setStatus(platformId, 'need_login', '已退出登录');
+    return { ...res, message: `已清除 ${platform.name} 的登录数据（${res.removed} 条 Cookie），请重新登录` };
   });
 
   handle('page:scan', async (platformId) => {

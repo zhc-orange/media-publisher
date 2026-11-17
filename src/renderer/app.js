@@ -17,6 +17,7 @@ const STATUS_KEYS = {
   uploading: 'status.uploading',
   filling: 'status.filling',
   filled: 'status.filled',
+  partial: 'status.partial',
   failed: 'status.failed',
   skipped: 'status.skipped',
 };
@@ -582,6 +583,22 @@ function renderPlatforms() {
         else toast(T('toast.retryRunning', { name: platformName(platform) }));
       })
     );
+    actions.appendChild(
+      makeAction(T('platform.logout'), T('platform.logoutTitle'), async () => {
+        if (state.running) {
+          toast(T('toast.logoutRunning'), 'error');
+          return;
+        }
+        if (!window.confirm(T('toast.logoutConfirm', { name: platformName(platform) }))) return;
+        await ensureChromeNotice(platform);
+        const res = await api.logoutPlatform(platform.id);
+        state.statusMap[platform.id] = { status: 'need_login', message: T('toast.logoutDone', { name: platformName(platform) }) };
+        syncDots();
+        renderProgress();
+        toast(T('toast.logoutDone', { name: platformName(platform) }));
+        return res;
+      })
+    );
 
     card.appendChild(main);
     if (note.textContent) card.appendChild(note);
@@ -636,7 +653,7 @@ function renderProgress() {
     });
     actions.appendChild(viewBtn);
 
-    if (result && (result.status === 'failed' || result.status === 'skipped')) {
+    if (result && (result.status === 'failed' || result.status === 'skipped' || result.status === 'partial')) {
       const retryBtn = document.createElement('button');
       retryBtn.className = 'link-btn';
       retryBtn.textContent = T('progress.retry');
@@ -793,8 +810,12 @@ function handleTaskEvent(ev) {
       syncDots();
       const results = Object.values(state.results);
       const filled = results.filter((r) => r.status === 'filled').length;
+      const partial = results.filter((r) => r.status === 'partial').length;
       const failed = results.filter((r) => r.status === 'failed').length;
-      if (ev.state === 'cancelled') toast(T('toast.cancelled'), 'error');
+      if (ev.state === 'cancelled') {
+        const skipped = results.filter((r) => r.status === 'skipped').length;
+        toast(T('toast.cancelledSummary', { filled: filled + partial, skipped }), 'error');
+      } else if (partial) toast(T('toast.partialFilled', { filled, partial }), 'error');
       else if (failed) toast(T('toast.partial', { filled, failed }), 'error');
       else toast(T('toast.allDone', { filled }), 'success');
       return;

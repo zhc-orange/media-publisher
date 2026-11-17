@@ -558,6 +558,120 @@ function pageClickByText(texts) {
 }
 
 /* ------------------------------------------------------------------ */
+/* 页面内：读取「标签行」——已选标签 + 输入框位置                        */
+/* 用途：B站/YouTube 这类「输入框 + 多个已选 chip」的控件，            */
+/*       必须回读已选标签才算真的写成功，不能想当然。                  */
+/* ------------------------------------------------------------------ */
+function pageTagChips(inputSelectors) {
+  const norm = (s) => String(s == null ? '' : s).replace(/\s+/g, '').trim();
+  const isVisible = (el) => {
+    if (!el || !el.isConnected) return false;
+    const r = el.getBoundingClientRect();
+    if (r.width < 2 || r.height < 2) return false;
+    const cs = window.getComputedStyle(el);
+    return cs.visibility !== 'hidden' && cs.display !== 'none' && Number(cs.opacity) !== 0;
+  };
+  const list = (inputSelectors || []).filter(Boolean);
+
+  let input = null;
+  for (let i = 0; i < list.length; i += 1) {
+    let el = null;
+    try {
+      el = window.__dshDeep(list[i]);
+    } catch (e) {
+      el = null;
+    }
+    if (el && isVisible(el)) {
+      input = el;
+      break;
+    }
+  }
+  if (!input) return { ok: false, reason: 'no_input', chips: [] };
+
+  const ir = input.getBoundingClientRect();
+  const centerY = ir.top + ir.height / 2;
+
+  // 从输入框往上找 3 层，收集「同一行、体积像 chip」的元素
+  const scopes = [];
+  let node = input.parentElement;
+  for (let i = 0; i < 3 && node; i += 1) {
+    scopes.push(node);
+    node = node.parentElement;
+  }
+
+  const out = {};
+  const stopWords = /还可以添加|创建标签|添加标签|按回车|Add\b|最多/;
+  for (let s = 0; s < scopes.length; s += 1) {
+    const els = scopes[s].querySelectorAll('*');
+    for (let i = 0; i < els.length; i += 1) {
+      const el = els[i];
+      if (el === input || el.contains(input) || input.contains(el)) continue;
+      const text = norm(el.innerText || el.textContent);
+      if (!text || text.length > 12) continue;
+      if (stopWords.test(text)) continue;
+      const r = el.getBoundingClientRect();
+      if (r.width < 20 || r.width > 260 || r.height < 14 || r.height > 48) continue;
+      const cy = r.top + r.height / 2;
+      if (Math.abs(cy - centerY) > 48) continue; // 必须在同一行
+      if (!isVisible(el)) continue;
+      if (!out[text] || r.width > out[text].w) {
+        out[text] = { text: text, x: r.left, y: r.top, w: r.width, h: r.height };
+      }
+    }
+  }
+
+  return {
+    ok: true,
+    input: { x: ir.left, y: ir.top, w: ir.width, h: ir.height },
+    chips: Object.keys(out).map(function (k) {
+      return out[k];
+    }),
+  };
+}
+
+/* ------------------------------------------------------------------ */
+/* 页面内：在标签行里点掉某个已选标签（找删除元素，找不到再用坐标兜底）  */
+/* ------------------------------------------------------------------ */
+function pageRemoveChip(chipText) {
+  const norm = (s) => String(s == null ? '' : s).replace(/\s+/g, '').trim();
+  const target = norm(chipText);
+  const all = window.__dshAll(document, '*', []);
+  let chip = null;
+  for (let i = 0; i < all.length; i += 1) {
+    const el = all[i];
+    const t = norm(el.innerText || el.textContent);
+    if (t !== target) continue;
+    const r = el.getBoundingClientRect();
+    if (r.width < 20 || r.width > 260 || r.height < 14 || r.height > 48) continue;
+    chip = el;
+  }
+  if (!chip) return { ok: false, reason: 'chip_not_found' };
+
+  // 优先找 chip 内的删除按钮
+  const closeSels = ['[class*="close"]', '[class*="delete"]', '[class*="remove"]', 'svg', 'i'];
+  for (let i = 0; i < closeSels.length; i += 1) {
+    const btn = chip.querySelector(closeSels[i]);
+    if (btn) {
+      const r = btn.getBoundingClientRect();
+      if (r.width >= 4 && r.height >= 4) {
+        return {
+          ok: true,
+          via: 'element',
+          point: { x: r.left + r.width / 2, y: r.top + r.height / 2 },
+        };
+      }
+    }
+  }
+  // 兜底：chip 右边缘内侧
+  const cr = chip.getBoundingClientRect();
+  return {
+    ok: true,
+    via: 'rect',
+    point: { x: cr.right - 9, y: cr.top + cr.height / 2 },
+  };
+}
+
+/* ------------------------------------------------------------------ */
 /* 主进程：登录态判定（IPC 与引擎共用同一套规则）                        */
 /* ------------------------------------------------------------------ */
 function judgeLogin(state, cfg) {
@@ -593,6 +707,8 @@ module.exports = {
   caretToEndScript: () => toScript(pageCaretToEnd),
   execInsertTextScript: (text) => toScript(pageExecInsertText, text),
   clickByTextScript: (texts) => toScript(pageClickByText, texts || []),
+  tagChipsScript: (inputSelectors) => toScript(pageTagChips, inputSelectors || []),
+  removeChipScript: (chipText) => toScript(pageRemoveChip, String(chipText || '')),
   visibleTextScript: (texts) => toScript(pageVisibleTextExists, texts || []),
   pageFind,
 };

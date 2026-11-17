@@ -9,7 +9,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const PLATFORM_DIR = path.join(__dirname, '..', 'config', 'platforms');
-const TAGS_MODES = ['inline-hash', 'comma-input', 'enter-input', 'none'];
+const TAGS_MODES = ['inline-hash', 'comma-input', 'enter-input', 'chip', 'none'];
 
 let cache = null;
 
@@ -88,6 +88,8 @@ function validatePlatform(raw, file) {
       openButton: asArray(tags.openButton),
       prefix: tags.prefix == null ? '#' : String(tags.prefix),
       confirm: tags.confirm !== false,
+      // chip 模式：是否先清掉平台自动带上的标签
+      replace: tags.replace === true,
     },
     cover: {
       optional: raw.cover ? raw.cover.optional !== false : true,

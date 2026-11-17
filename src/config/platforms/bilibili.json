@@ -50,11 +50,12 @@
                                   ]
                 },
     "tags":  {
-                 "mode":  "enter-input",
+                 "mode":  "chip",
+                 "replace":  true,
                  "selectors":  [
-                                   "input[placeholder*=\"标签\"]",
-                                   "input[placeholder*=\"回车\"]",
-                                   "[class*=\"tag\"] input"
+                                   "input[placeholder*=\"创建标签\"]",
+                                   "input[placeholder*=\"回车键Enter\"]",
+                                   "input[placeholder*=\"标签\"]"
                                ],
                  "confirm":  true
              },
