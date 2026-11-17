@@ -1,6 +1,7 @@
 {
     "id":  "tiktok",
     "name":  "TikTok",
+    "language":  "en",
     "order":  6,
     "entry":  "https://www.tiktok.com/tiktokstudio/upload?from=upload",
     "engine":  "chrome",

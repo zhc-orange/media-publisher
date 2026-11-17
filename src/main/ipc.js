@@ -57,6 +57,7 @@ function registerIpc(ctx) {
       order: p.order,
       entry: p.entry,
       engine: p.engine,
+      language: p.language,
       limits: p.limits,
       tagsMode: p.tags.mode,
     })),

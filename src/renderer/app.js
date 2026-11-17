@@ -120,6 +120,7 @@ function applyLanguage(setting) {
   if (!state.info) return;
   renderTabs();
   renderPlatforms();
+  syncEnglishVisibility();
   renderVideoInfo();
   renderCoverInfo();
   updateCounters();
@@ -161,6 +162,9 @@ function saveDraft() {
         title: $('#input-title').value,
         description: $('#input-desc').value,
         tags: state.tags,
+        titleEn: $('#input-title-en').value,
+        descriptionEn: $('#input-desc-en').value,
+        tagsEn: $('#input-tags-en').value,
         checked: Array.from(state.checked),
         video: state.video,
         cover: state.cover,
@@ -184,6 +188,9 @@ function restoreDraft() {
   }
   $('#input-title').value = draft.title || '';
   $('#input-desc').value = draft.description || '';
+  $('#input-title-en').value = draft.titleEn || '';
+  $('#input-desc-en').value = draft.descriptionEn || '';
+  $('#input-tags-en').value = draft.tagsEn || '';
   state.tags = Array.isArray(draft.tags) ? draft.tags : [];
   state.video = draft.video || null;
   state.cover = draft.cover || null;
@@ -272,6 +279,9 @@ async function resetForm(options = {}) {
     state.cover ||
     $('#input-title').value.trim() ||
     $('#input-desc').value.trim() ||
+    $('#input-title-en').value.trim() ||
+    $('#input-desc-en').value.trim() ||
+    $('#input-tags-en').value.trim() ||
     state.tags.length
   );
   if (hasContent && !options.skipConfirm && !window.confirm(T('toast.confirmClear'))) return;
@@ -281,6 +291,9 @@ async function resetForm(options = {}) {
   $('#input-title').value = '';
   $('#input-desc').value = '';
   $('#input-tags').value = '';
+  $('#input-title-en').value = '';
+  $('#input-desc-en').value = '';
+  $('#input-tags-en').value = '';
   $('#video-limits').textContent = '';
   try {
     await api.setMedia('video', '');
@@ -390,8 +403,18 @@ function addTag(raw) {
   saveDraft();
 }
 
-function checkedPlatforms() {
-  return state.platforms.filter((p) => state.checked.has(p.id));
+function checkedPlatforms() {  return state.platforms.filter((p) => state.checked.has(p.id));
+}
+
+/**
+ * 只有勾选了「优先英文」的平台（YouTube / TikTok）时才显示英文文案区。
+ * 提示语在 HTML 里固定，避免用户误以为所有平台都会被翻译。
+ */
+function syncEnglishVisibility() {
+  const field = $('#field-en');
+  if (!field) return;
+  const needsEn = checkedPlatforms().some((p) => p.language === 'en');
+  field.classList.toggle('hidden', !needsEn);
 }
 
 function updateCounters() {
@@ -486,6 +509,7 @@ function renderPlatforms() {
       card.classList.toggle('checked', checkbox.checked);
       updateCounters();
       renderProgress();
+      syncEnglishVisibility();
       saveDraft();
     });
 
@@ -843,12 +867,19 @@ async function startTask() {
     if (platform) await ensureChromeNotice(platform);
   }
 
+  const tagsEnText = $('#input-tags-en').value.trim();
   const task = {
     videoPath: state.video.path,
     coverPath: state.cover ? state.cover.path : '',
     title,
     description: $('#input-desc').value.trim(),
     tags: state.tags.slice(),
+    // 英文文案：只有 YouTube / TikTok 会用到；留空的字段在主进程里回落中文
+    titleEn: $('#input-title-en').value.trim(),
+    descriptionEn: $('#input-desc-en').value.trim(),
+    tagsEn: tagsEnText
+      ? tagsEnText.split(/[,，、\s]+/).map((t) => t.trim().replace(/^#+/, '')).filter(Boolean)
+      : [],
     platforms,
   };
   state.currentTask = task;
@@ -1001,6 +1032,12 @@ function bindEvents() {
     saveDraft();
   });
 
+  // 英文文案只存草稿，不做字数统计（各平台上限不同，提交时统一校验）
+  for (const sel of ['#input-title-en', '#input-desc-en', '#input-tags-en']) {
+    const el = $(sel);
+    if (el) el.addEventListener('input', () => saveDraft());
+  }
+
   const tagsInput = $('#input-tags');
   tagsInput.addEventListener('keydown', (event) => {
     if (event.key === 'Enter' || event.key === ',' || event.key === '，') {
@@ -1036,6 +1073,7 @@ function bindEvents() {
     renderPlatforms();
     renderProgress();
     updateCounters();
+    syncEnglishVisibility();
     saveDraft();
   });
 
@@ -1044,6 +1082,7 @@ function bindEvents() {
     renderPlatforms();
     renderProgress();
     updateCounters();
+    syncEnglishVisibility();
     saveDraft();
   });
 
@@ -1238,6 +1277,7 @@ async function init() {
     renderCoverInfo();
     renderTags();
     renderPlatforms();
+    syncEnglishVisibility();
     updateCounters();
     renderProgress();
     updateRunState();

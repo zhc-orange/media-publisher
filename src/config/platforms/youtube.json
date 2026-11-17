@@ -1,6 +1,7 @@
 {
     "id":  "youtube",
     "name":  "YouTube",
+    "language":  "en",
     "order":  5,
     "entry":  "https://studio.youtube.com",
     "uploadEntry":  "https://studio.youtube.com/channel/{channelId}/videos/upload?d=ud",

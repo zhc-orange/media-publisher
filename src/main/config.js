@@ -55,6 +55,8 @@ function validatePlatform(raw, file) {
     order: Number.isFinite(Number(raw.order)) ? Number(raw.order) : 99,
     entry,
     engine: raw.engine === 'chrome' ? 'chrome' : 'electron',
+    // 文案语言偏好：en = 优先使用英文文案（没填则回落中文）
+    language: raw.language === 'en' ? 'en' : 'zh',
     uploadEntry: String(raw.uploadEntry || ''),
     combineTitleDesc: raw.combineTitleDesc === true,
     note: String(raw.note || ''),

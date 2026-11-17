@@ -100,6 +100,40 @@
               <div class="field-hint" data-i18n="form.tagsHint">小红书 / 抖音会写成 #话题；B站 / YouTube 填进标签框。</div>
             </div>
 
+            <div id="field-en" class="field hidden">
+              <div class="label-row">
+                <label class="label" data-i18n="form.enTitle">英文文案</label>
+                <span class="field-meta" data-i18n="form.enHint">仅 YouTube / TikTok 优先使用；留空自动回落中文</span>
+              </div>
+              <input
+                id="input-title-en"
+                class="input"
+                type="text"
+                maxlength="200"
+                data-i18n-placeholder="form.enTitlePlaceholder"
+                placeholder="English title"
+              />
+              <textarea
+                id="input-desc-en"
+                class="input textarea"
+                rows="4"
+                style="margin-top: 8px"
+                data-i18n-placeholder="form.enDescPlaceholder"
+                placeholder="English description"
+              ></textarea>
+              <input
+                id="input-tags-en"
+                class="input"
+                type="text"
+                style="margin-top: 8px"
+                data-i18n-placeholder="form.enTagsPlaceholder"
+                placeholder="climbing, bouldering"
+              />
+              <div class="field-hint" data-i18n="form.enFallbackHint">
+                某个字段留空时，该字段会单独回落中文；不会整条空着发出去。
+              </div>
+            </div>
+
             <!-- 封面自动设置暂未支持（各平台封面 UI 差异太大），先隐藏入口 -->
             <div class="field" style="display: none" data-cover-disabled="1">
               <div class="label-row">

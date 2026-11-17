@@ -12,6 +12,47 @@ const { prepareForPlatform, checkVideo } = require('./limits');
 const diagnostics = require('./diagnostics');
 const TaskLogger = require('./logger');
 
+const splitTags = (value) => {
+  if (Array.isArray(value)) return value.map((t) => String(t || '').trim()).filter(Boolean);
+  return String(value == null ? '' : value)
+    .split(/[\s,，、;；]+/)
+    .map((t) => t.trim())
+    .filter(Boolean);
+};
+
+/**
+ * 按平台语言偏好选择文案。
+ * 只有配置了 language: 'en' 的平台（YouTube / TikTok）才优先用英文；
+ * 英文缺失时逐字段回落中文，绝不因为缺英文就发空白。
+ */
+function resolveCopy(task, platform) {
+  const wantEn = platform && platform.language === 'en';
+  const titleEn = String(task.titleEn || '').trim();
+  // 界面发的是 descriptionEn；兼容 descEn 旧写法
+  const descEn = String(task.descriptionEn || task.descEn || '').trim();
+  const tagsEn = splitTags(task.tagsEn);
+  const useEn = wantEn && !!(titleEn || descEn || tagsEn.length);
+
+  const title = useEn && titleEn ? titleEn : task.title;
+  const desc = useEn && descEn ? descEn : task.description;
+  const tags = useEn && tagsEn.length ? tagsEn : task.tags;
+
+  return {
+    title,
+    desc,
+    tags,
+    // 记录实际用到的语言，界面上可以标出来
+    usedLanguage: useEn ? 'en' : 'zh',
+    fallbackFields: useEn
+      ? [
+          !titleEn ? 'title' : '',
+          !descEn ? 'desc' : '',
+          !tagsEn.length ? 'tags' : '',
+        ].filter(Boolean)
+      : [],
+  };
+}
+
 class Runner extends EventEmitter {
   constructor({ tabs, dirs, getSettings }) {
     super();
@@ -202,7 +243,12 @@ class Runner extends EventEmitter {
       return { status: 'failed', step: 'preflight', message };
     }
 
-    const prepared = prepareForPlatform(task, platform, { autoTruncate: settings.autoTruncate !== false });
+    const copy = resolveCopy(task, platform);
+    const prepared = prepareForPlatform(
+      { ...task, title: copy.title, description: copy.desc, tags: copy.tags },
+      platform,
+      { autoTruncate: settings.autoTruncate !== false }
+    );
     if (prepared.errors.length) {
       const message = prepared.errors.join('；');
       this.emitStatus(platform.id, 'failed', message);
@@ -241,6 +287,8 @@ class Runner extends EventEmitter {
         warnings: res.warnings,
         tags: res && res.tags ? res.tags : null,
         missingTags,
+        usedLanguage: copy.usedLanguage,
+        fallbackFields: copy.fallbackFields,
         elapsedMs: Date.now() - startedAt,
       };
     } catch (err) {
@@ -302,3 +350,5 @@ class Runner extends EventEmitter {
 }
 
 module.exports = Runner;
+// 供单元测试直接验证文案回落规则
+module.exports.resolveCopy = resolveCopy;
